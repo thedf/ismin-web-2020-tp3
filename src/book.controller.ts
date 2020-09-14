@@ -10,17 +10,25 @@ import {
 import { BookService } from './book.service';
 import { Book } from './Book';
 import { BookDocument, BookSchema } from './Book.schema';
-
+import { PaginationAndAuthor, Search } from './Search';
 @Controller('books')
 export class BookController {
   constructor(private readonly bookService: BookService) {}
 
   @Get()
-  async findAll(@Query() query: Book): Promise<Book[]> {
+  async findAll(@Query() query: PaginationAndAuthor): Promise<Book[]> {
+    const after = query.after | 0;
+    const count = query.count | 0;
     if (query.author) {
-      return this.bookService.findAllByAuthor(query.author);
+      return (await this.bookService.findAllByAuthor(query.author)).slice(
+        after,
+        count === 0 ? undefined : after + count,
+      );
     } else {
-      return this.bookService.findAll();
+      return (await this.bookService.findAll()).slice(
+        after,
+        count === 0 ? undefined : after + count,
+      );
     }
   }
   @Get('/:bookName')
@@ -33,6 +41,18 @@ export class BookController {
       this.bookService.create(book);
       return book;
     }
+  }
+  @Post('/search')
+  async search(
+    @Body() searchParams: Search,
+    @Query() query: PaginationAndAuthor,
+  ): Promise<Book[]> {
+    const after = query.after | 0;
+    const count = query.count | 0;
+    return (await this.bookService.search(searchParams)).slice(
+      after,
+      count === 0 ? undefined : after + count,
+    );
   }
   @Delete('/:bookName')
   async delete(@Param('bookName') bookName: string): Promise<string> {

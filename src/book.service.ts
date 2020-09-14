@@ -4,6 +4,8 @@ import { Book } from './Book';
 import { InjectModel } from '@nestjs/mongoose';
 import { BookDocument, BookSchema } from './Book.schema';
 import { Model } from 'mongoose';
+import { PaginationAndAuthor, Search } from './Search';
+
 @Injectable()
 export class BookService {
   OurBookshelf = new Bookshelf();
@@ -12,7 +14,6 @@ export class BookService {
   ) {}
 
   async create(book: Book): Promise<void> {
-    // this.OurBookshelf.addBook(book);
     const booksAlreadyInDB = await this.BookModel.find({
       author: book.author,
       title: book.title,
@@ -23,7 +24,6 @@ export class BookService {
   }
 
   async findAll(): Promise<Book[]> {
-    // return this.OurBookshelf.getAllBooks();
     return (await this.BookModel.find().exec())
       .map(
         (bookDocObj: BookDocument): Book => {
@@ -63,6 +63,18 @@ export class BookService {
         date: firstBookWithTitle[0].date,
       };
     }
+  }
+  async search(searchParams: Search): Promise<Book[]> {
+    return this.BookModel.find()
+      .or([
+        {
+          author: { $regex: searchParams.term, $options: 'i' },
+        },
+        {
+          title: { $regex: searchParams.term, $options: 'i' },
+        },
+      ])
+      .exec();
   }
   async deleteBook(bookName: string): Promise<void> {
     // return this.OurBookshelf.deleteBook(bookName);
