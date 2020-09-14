@@ -35,3 +35,6 @@ lerna-debug.log*
 
 # Custom project file
 secret-constants.ts
+
+#Envirement Vars
+.env
