@@ -13,24 +13,56 @@ export class BookService {
 
   async create(book: Book): Promise<void> {
     // this.OurBookshelf.addBook(book);
-    this.BookModel.create(book);
+    const booksAlreadyInDB = await this.BookModel.find({
+      author: book.author,
+      title: book.title,
+    }).exec();
+    if (booksAlreadyInDB.length === 0) {
+      this.BookModel.create(book);
+    }
   }
 
-  async findAll(): Promise<BookDocument[]> {
+  async findAll(): Promise<Book[]> {
     // return this.OurBookshelf.getAllBooks();
-    return this.BookModel.find().exec();
+    return (await this.BookModel.find().exec())
+      .map(
+        (bookDocObj: BookDocument): Book => {
+          return {
+            title: bookDocObj.title,
+            author: bookDocObj.author,
+            date: bookDocObj.date,
+          };
+        },
+      )
+      .sort((bookA, bookB) => bookA.title.localeCompare(bookB.title));
   }
-  async findAllByAuthor(authorName: string): Promise<BookDocument[]> {
+  async findAllByAuthor(authorName: string): Promise<Book[]> {
     // return this.OurBookshelf.getBooksOf(authorName);
-    return this.BookModel.find({ author: authorName }).exec();
+    return (await this.BookModel.find({ author: authorName }).exec())
+      .map(
+        (bookDocObj: BookDocument): Book => {
+          return {
+            title: bookDocObj.title,
+            author: bookDocObj.author,
+            date: bookDocObj.date,
+          };
+        },
+      )
+      .sort((bookA, bookB) => bookA.title.localeCompare(bookB.title));
   }
 
-  async getBookByName(bookName: string): Promise<BookDocument> {
+  async getBookByName(bookName: string): Promise<Book> {
     // return this.OurBookshelf.getBook(bookName);
     const firstBookWithTitle: BookDocument[] = await this.BookModel.find({
       title: bookName,
     }).exec();
-    return firstBookWithTitle[0];
+    if (firstBookWithTitle.length !== 0) {
+      return {
+        title: firstBookWithTitle[0].title,
+        author: firstBookWithTitle[0].author,
+        date: firstBookWithTitle[0].date,
+      };
+    }
   }
   async deleteBook(bookName: string): Promise<void> {
     // return this.OurBookshelf.deleteBook(bookName);

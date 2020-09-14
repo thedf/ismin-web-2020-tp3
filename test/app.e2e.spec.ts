@@ -110,8 +110,8 @@ describe('Books API', () => {
     await httpRequester.delete('/books/Candide').expect(200);
 
     // Finally check the book was successfully deleted
-    const response = await httpRequester.get('/books');
+    const response = await httpRequester.get('/books/Candide');
 
-    expect(response.body).toEqual([]);
+    expect(response.body).toEqual({});
   });
 });

@@ -16,7 +16,7 @@ export class BookController {
   constructor(private readonly bookService: BookService) {}
 
   @Get()
-  async findAll(@Query() query: Book): Promise<BookDocument[]> {
+  async findAll(@Query() query: Book): Promise<Book[]> {
     if (query.author) {
       return this.bookService.findAllByAuthor(query.author);
     } else {
@@ -24,15 +24,15 @@ export class BookController {
     }
   }
   @Get('/:bookName')
-  async getBookByName(
-    @Param('bookName') bookName: string,
-  ): Promise<BookDocument> {
+  async getBookByName(@Param('bookName') bookName: string): Promise<Book> {
     return this.bookService.getBookByName(bookName);
   }
   @Post()
-  async create(@Body() book: Book): Promise<string> {
-    this.bookService.create(book);
-    return 'Book have been Created';
+  async create(@Body() book: Book): Promise<Book> {
+    if (typeof book.title === 'string' && typeof book.author === 'string') {
+      this.bookService.create(book);
+      return book;
+    }
   }
   @Delete('/:bookName')
   async delete(@Param('bookName') bookName: string): Promise<string> {
