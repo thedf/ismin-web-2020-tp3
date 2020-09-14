@@ -22,21 +22,21 @@ export class BookService {
   //   OurBookshelf.addBook(theLordOfTheRings);
   //   OurBookshelf.addBook(theHobbit);
   //   OurBookshelf.addBook(hamlet);
-  create(book: Book): void {
+  async create(book: Book): Promise<void> {
     this.OurBookshelf.addBook(book);
   }
 
-  findAll(): Book[] {
+  async findAll(): Promise<Book[]> {
     return this.OurBookshelf.getAllBooks();
   }
-  findAllByAuthor(authorName: string): Book[] {
+  async findAllByAuthor(authorName: string): Promise<Book[]> {
     return this.OurBookshelf.getBooksOf(authorName);
   }
 
-  getBookByName(bookName: string): Book {
+  async getBookByName(bookName: string): Promise<Book> {
     return this.OurBookshelf.getBook(bookName);
   }
-  deleteBook(bookName: string): void {
+  async deleteBook(bookName: string): Promise<void> {
     return this.OurBookshelf.deleteBook(bookName);
   }
 }
