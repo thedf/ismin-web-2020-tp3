@@ -9,12 +9,14 @@ import {
 } from '@nestjs/common';
 import { BookService } from './book.service';
 import { Book } from './Book';
+import { BookDocument, BookSchema } from './Book.schema';
+
 @Controller('books')
 export class BookController {
   constructor(private readonly bookService: BookService) {}
 
   @Get()
-  async findAll(@Query() query: Book): Promise<Book[]> {
+  async findAll(@Query() query: Book): Promise<BookDocument[]> {
     if (query.author) {
       return this.bookService.findAllByAuthor(query.author);
     } else {
@@ -22,7 +24,9 @@ export class BookController {
     }
   }
   @Get('/:bookName')
-  async getBookByName(@Param('bookName') bookName: string): Promise<Book> {
+  async getBookByName(
+    @Param('bookName') bookName: string,
+  ): Promise<BookDocument> {
     return this.bookService.getBookByName(bookName);
   }
   @Post()

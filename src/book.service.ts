@@ -1,42 +1,39 @@
 import { Injectable } from '@nestjs/common';
 import { Bookshelf } from './Bookshelf';
 import { Book } from './Book';
+import { InjectModel } from '@nestjs/mongoose';
+import { BookDocument, BookSchema } from './Book.schema';
+import { Model } from 'mongoose';
 @Injectable()
 export class BookService {
   OurBookshelf = new Bookshelf();
-  //   theLordOfTheRings = {
-  //     title: 'The Lord of the Rings',
-  //     author: 'J. R. R. Tolkien',
-  //     date: new Date('1954-02-15'),
-  //   };
-  //   theHobbit = {
-  //     title: 'The Hobbit',
-  //     author: 'J. R. R. Tolkien',
-  //     date: new Date('1937-09-21'),
-  //   };
-  //   hamlet = {
-  //     title: 'Hamlet',
-  //     author: 'William Shakespeare',
-  //     date: new Date('1600'),
-  //   };
-  //   OurBookshelf.addBook(theLordOfTheRings);
-  //   OurBookshelf.addBook(theHobbit);
-  //   OurBookshelf.addBook(hamlet);
+  constructor(
+    @InjectModel(BookDocument.name) private BookModel: Model<BookDocument>,
+  ) {}
+
   async create(book: Book): Promise<void> {
-    this.OurBookshelf.addBook(book);
+    // this.OurBookshelf.addBook(book);
+    this.BookModel.create(book);
   }
 
-  async findAll(): Promise<Book[]> {
-    return this.OurBookshelf.getAllBooks();
+  async findAll(): Promise<BookDocument[]> {
+    // return this.OurBookshelf.getAllBooks();
+    return this.BookModel.find().exec();
   }
-  async findAllByAuthor(authorName: string): Promise<Book[]> {
-    return this.OurBookshelf.getBooksOf(authorName);
+  async findAllByAuthor(authorName: string): Promise<BookDocument[]> {
+    // return this.OurBookshelf.getBooksOf(authorName);
+    return this.BookModel.find({ author: authorName }).exec();
   }
 
-  async getBookByName(bookName: string): Promise<Book> {
-    return this.OurBookshelf.getBook(bookName);
+  async getBookByName(bookName: string): Promise<BookDocument> {
+    // return this.OurBookshelf.getBook(bookName);
+    const firstBookWithTitle: BookDocument[] = await this.BookModel.find({
+      title: bookName,
+    }).exec();
+    return firstBookWithTitle[0];
   }
   async deleteBook(bookName: string): Promise<void> {
-    return this.OurBookshelf.deleteBook(bookName);
+    // return this.OurBookshelf.deleteBook(bookName);
+    this.BookModel.deleteOne({ title: bookName }).exec();
   }
 }
